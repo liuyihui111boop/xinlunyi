@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能导航 - 智能轮椅</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#ecfeff', 100: '#cffafe', 200: '#a5f3fc', 300: '#67e8f9',
+                            400: '#22d3ee', 500: '#06b6d4', 600: '#0891b2', 700: '#0e7490',
+                            800: '#155e75', 900: '#164e63',
+                        }
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+                        'rotate-slow': 'rotate 20s linear infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        'pulse-glow': {
+                            '0%, 100%': { opacity: 1, boxShadow: '0 0 20px rgba(6, 182, 212, 0.4)' },
+                            '50%': { opacity: 0.7, boxShadow: '0 0 40px rgba(6, 182, 212, 0.6)' },
+                        },
+                        'rotate': {
+                            '0%': { transform: 'rotate(0deg)' },
+                            '100%': { transform: 'rotate(360deg)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(6, 182, 212, 0.3) transparent;
+        }
+
+        *::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background: rgba(6, 182, 212, 0.3);
+            border-radius: 4px;
+        }
+
+        *::-webkit-scrollbar-thumb:hover {
+            background: rgba(6, 182, 212, 0.5);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #0a0f1a 0%, #131b2e 25%, #1a2438 50%, #131b2e 75%, #0a0f1a 100%);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        #particles-js {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 30px 60px rgba(6, 182, 212, 0.3);
+            border-color: rgba(6, 182, 212, 0.3);
+        }
+
+        .map-grid {
+            background-image:
+                linear-gradient(rgba(6, 182, 212, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(6, 182, 212, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .pulse-dot {
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 0.5;
+            }
+        }
+
+        .route-line {
+            stroke-dasharray: 10;
+            animation: dash 1s linear infinite;
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -20;
+            }
+        }
+
+        .radar-scan {
+            animation: radar 3s linear infinite;
+        }
+
+        @keyframes radar {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .glow-primary {
+            box-shadow: 0 0 60px rgba(6, 182, 212, 0.3);
+        }
+
+        .card-shine {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-shine::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.1) 50%, transparent 60%);
+            transform: rotate(-45deg) translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        .card-shine:hover::before {
+            transform: rotate(-45deg) translateX(100%);
+        }
+
+        .text-gradient-primary {
+            background: linear-gradient(135deg, #22d3ee, #4ade80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .content-section {
+            position: relative;
+            z-index: 10;
+        }
+    </style>
+</head>
+
+<body class="gradient-bg min-h-screen text-white">
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-card">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+                    <span class="material-icons text-3xl text-primary-400">accessible</span>
+                    <span class="text-xl font-bold text-primary-400">智能轮椅</span>
+                </a>
+                <div class="flex items-center space-x-4">
+                    <span class="text-primary-300 text-sm hidden sm:block">智能导航系统</span>
+                    <a href="index.html"
+                        class="glass-card px-4 py-2 rounded-full text-sm hover:bg-white/20 transition-all">
+                        返回首页
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄区域 -->
+    <section class="pt-24 pb-12 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12 animate__animated animate__fadeInUp">
+                <span
+                    class="inline-block px-4 py-2 rounded-full bg-primary-500/20 text-primary-300 text-sm font-medium mb-4">
+                    <span class="material-icons text-sm align-middle mr-1">explore</span>
+                    AI驱动
+                </span>
+                <h1 class="text-4xl md:text-6xl font-bold mb-4">
+                    <span class="bg-gradient-to-r from-primary-300 to-cyan-300 bg-clip-text text-transparent">
+                        智能导航系统
+                    </span>
+                </h1>
+                <p class="text-xl text-gray-400 max-w-2xl mx-auto">
+                    基于AI视觉算法与多传感器融合，实现厘米级精准定位与智能路径规划
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 实时地图演示 -->
+    <section class="py-8 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="glass-card rounded-3xl overflow-hidden">
+                <div class="grid lg:grid-cols-3">
+                    <!-- 地图区域 -->
+                    <div class="lg:col-span-2 p-6 map-grid relative min-h-[400px]">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <!-- 模拟地图 -->
+                            <svg viewBox="0 0 400 300" class="w-full h-full max-w-lg">
+                                <!-- 道路 -->
+                                <path d="M50 150 L350 150" stroke="rgba(255,255,255,0.3)" stroke-width="20"
+                                    fill="none" />
+                                <path d="M200 50 L200 250" stroke="rgba(255,255,255,0.3)" stroke-width="20"
+                                    fill="none" />
+
+                                <!-- 建筑物 -->
+                                <rect x="70" y="60" width="60" height="50" fill="rgba(6, 182, 212, 0.3)" rx="5" />
+                                <rect x="270" y="180" width="70" height="60" fill="rgba(6, 182, 212, 0.3)" rx="5" />
+                                <rect x="80" y="190" width="50" height="40" fill="rgba(6, 182, 212, 0.3)" rx="5" />
+
+                                <!-- 路径 -->
+                                <path d="M200 250 L200 150 L350 150" stroke="#06b6d4" stroke-width="3" fill="none"
+                                    class="route-line" />
+
+                                <!-- 起点终点 -->
+                                <circle cx="200" cy="250" r="8" fill="#22c55e" />
+                                <circle cx="350" cy="150" r="8" fill="#ef4444" />
+
+                                <!-- 当前位置 -->
+                                <g class="pulse-dot">
+                                    <circle cx="200" cy="180" r="15" fill="rgba(6, 182, 212, 0.3)" />
+                                    <circle cx="200" cy="180" r="8" fill="#06b6d4" />
+                                </g>
+                            </svg>
+                        </div>
+
+                        <!-- 雷达扫描效果 -->
+                        <div class="absolute top-6 left-6 w-20 h-20">
+                            <div class="w-full h-full rounded-full border-2 border-primary-500/50 relative">
+                                <div class="absolute inset-0 bg-gradient-to-r from-transparent to-primary-500/30 radar-scan"
+                                    style="clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 50% 0%);">
+                                </div>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="material-icons text-primary-400">radar</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 导航信息 -->
+                    <div class="p-6 border-t lg:border-t-0 lg:border-l border-white/10">
+                        <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                            <span class="material-icons text-primary-400">navigation</span>
+                            导航信息
+                        </h3>
+
+                        <!-- 目的地选择 -->
+                        <div class="mb-4">
+                            <label class="text-xs text-gray-400 mb-2 block">选择目的地</label>
+                            <select id="destination" onchange="updateNavigation()"
+                                class="w-full bg-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                <option value="hospital">中央医院门诊部</option>
+                                <option value="mall">世纪商城</option>
+                                <option value="park">人民公园</option>
+                                <option value="home">回家</option>
+                            </select>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="glass-card rounded-xl p-4">
+                                <div class="text-sm text-gray-400 mb-1">目的地</div>
+                                <div class="font-semibold" id="destName">中央医院门诊部</div>
+                                <div class="text-sm text-primary-400">距离 <span id="distance">1.2</span>km</div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="glass-card rounded-xl p-3 text-center">
+                                    <div class="text-2xl font-bold text-primary-400" id="eta">8</div>
+                                    <div class="text-xs text-gray-400">预计分钟</div>
+                                </div>
+                                <div class="glass-card rounded-xl p-3 text-center">
+                                    <div class="text-2xl font-bold text-green-400" id="trafficStatus">安全</div>
+                                    <div class="text-xs text-gray-400">路况状态</div>
+                                </div>
+                            </div>
+
+                            <div class="glass-card rounded-xl p-4">
+                                <div class="text-sm text-gray-400 mb-2">下一步</div>
+                                <div class="flex items-center gap-2">
+                                    <span class="material-icons text-primary-400" id="nextIcon">turn_right</span>
+                                    <span id="nextInstruction">前方50米右转</span>
+                                </div>
+                            </div>
+
+                            <!-- 导航进度条 -->
+                            <div class="glass-card rounded-xl p-4">
+                                <div class="flex justify-between text-xs text-gray-400 mb-2">
+                                    <span>已行驶 <span id="progressPercent">0</span>%</span>
+                                    <span id="progressTime">剩余 8 分钟</span>
+                                </div>
+                                <div class="h-2 bg-white/10 rounded-full overflow-hidden">
+                                    <div id="progressBar"
+                                        class="h-full bg-gradient-to-r from-primary-500 to-accent-500 rounded-full transition-all duration-1000"
+                                        style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <button onclick="startNavigation()" id="navBtn"
+                                class="w-full bg-gradient-to-r from-primary-500 to-primary-600 py-3 rounded-xl font-semibold hover:shadow-lg hover:shadow-primary-500/50 transition-all flex items-center justify-center gap-2">
+                                <span class="material-icons" id="navIcon">play_arrow</span>
+                                <span id="navBtnText">开始导航</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 核心功能 -->
+    <section class="py-16 px-6">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-12">
+                <span class="bg-gradient-to-r from-primary-300 to-cyan-300 bg-clip-text text-transparent">
+                    核心导航功能
+                </span>
+            </h2>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="glass-card rounded-2xl p-6 card-hover transition-all duration-300">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center mb-4">
+                        <span class="material-icons">route</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">智能路径规划</h3>
+                    <p class="text-gray-400 text-sm">
+                        AI算法自动分析地形、坡度、障碍物，规划最优出行路径，避开陡坡和复杂路段
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 card-hover transition-all duration-300">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center mb-4">
+                        <span class="material-icons">sensors</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">多传感器融合</h3>
+                    <p class="text-gray-400 text-sm">
+                        激光雷达+视觉摄像头+超声波传感器，360°全方位环境感知，精度达厘米级
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 card-hover transition-all duration-300">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center mb-4">
+                        <span class="material-icons">warning</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">避障预警系统</h3>
+                    <p class="text-gray-400 text-sm">
+                        实时检测前方障碍物，提前3秒预警并自动减速，安全距离可自定义
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 card-hover transition-all duration-300">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center mb-4">
+                        <span class="material-icons">location_on</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">室内外无缝定位</h3>
+                    <p class="text-gray-400 text-sm">
+                        GPS+北斗+UWB室内定位，室内外自动切换，精度可达10cm级别
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 card-hover transition-all duration-300">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-4">
+                        <span class="material-icons">cloud_sync</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">云端地图同步</h3>
+                    <p class="text-gray-400 text-sm">
+                        实时更新路况信息，无障碍设施标注，支持离线地图下载
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 card-hover transition-all duration-300">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center mb-4">
+                        <span class="material-icons">history</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">历史轨迹记录</h3>
+                    <p class="text-gray-400 text-sm">
+                        自动记录出行轨迹，支持轨迹回放，家人可远程查看实时位置
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 技术参数 -->
+    <section class="py-16 px-6">
+        <div class="max-w-5xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-12">技术参数</h2>
+
+            <div class="glass-card rounded-3xl overflow-hidden">
+                <table class="w-full">
+                    <thead class="bg-primary-900/50">
+                        <tr>
+                            <th class="px-6 py-4 text-left">参数项</th>
+                            <th class="px-6 py-4 text-left">规格</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/10">
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="px-6 py-4">定位精度</td>
+                            <td class="px-6 py-4 text-primary-400">室外 ≤1m / 室内 ≤10cm</td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="px-6 py-4">感知范围</td>
+                            <td class="px-6 py-4 text-primary-400">360° 全方位，最远 20m</td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="px-6 py-4">障碍物检测精度</td>
+                            <td class="px-6 py-4 text-primary-400">±2cm</td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="px-6 py-4">预警响应时间</td>
+                            <td class="px-6 py-4 text-primary-400">&lt; 100ms</td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="px-6 py-4">地图存储容量</td>
+                            <td class="px-6 py-4 text-primary-400">内置 32GB，可扩展至 128GB</td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="px-6 py-4">支持的地图类型</td>
+                            <td class="px-6 py-4 text-primary-400">高德、百度、Google Maps、室内地图</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- 返回按钮 -->
+    <section class="py-12 px-6">
+        <div class="max-w-7xl mx-auto text-center">
+            <a href="index.html"
+                class="inline-flex items-center gap-2 glass-card px-8 py-4 rounded-full hover:bg-white/20 transition-all">
+                <span class="material-icons">arrow_back</span>
+                返回首页
+            </a>
+        </div>
+    </section>
+
+    <script>
+        // 目的地数据
+        const destinations = {
+            hospital: { name: '中央医院门诊部', distance: 1.2, eta: 8, icon: 'turn_right', instruction: '前方50米右转', traffic: '安全' },
+            mall: { name: '世纪商城', distance: 2.5, eta: 12, icon: 'turn_left', instruction: '第二个路口左转', traffic: '缓行' },
+            park: { name: '人民公园', distance: 0.8, eta: 5, icon: 'straight', instruction: '直行300米', traffic: '畅通' },
+            home: { name: '回家', distance: 3.2, eta: 15, icon: 'roundabout_left', instruction: '环岛第二个出口', traffic: '安全' }
+        };
+
+        let isNavigating = false;
+        let navigationTimer = null;
+        let progress = 0;
+
+        // 更新导航信息
+        function updateNavigation() {
+            const dest = document.getElementById('destination').value;
+            const data = destinations[dest];
+
+            document.getElementById('destName').textContent = data.name;
+            document.getElementById('distance').textContent = data.distance;
+            document.getElementById('eta').textContent = data.eta;
+            document.getElementById('trafficStatus').textContent = data.traffic;
+            document.getElementById('nextIcon').textContent = data.icon;
+            document.getElementById('nextInstruction').textContent = data.instruction;
+
+            // 路况颜色
+            const trafficEl = document.getElementById('trafficStatus');
+            if (data.traffic === '安全' || data.traffic === '畅通') {
+                trafficEl.className = 'text-2xl font-bold text-green-400';
+            } else {
+                trafficEl.className = 'text-2xl font-bold text-yellow-400';
+            }
+
+            // 重置进度条
+            progress = 0;
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressPercent').textContent = '0';
+            document.getElementById('progressTime').textContent = '剩余 ' + data.eta + ' 分钟';
+        }
+
+        // 开始/停止导航
+        function startNavigation() {
+            const btn = document.getElementById('navBtn');
+            const icon = document.getElementById('navIcon');
+            const text = document.getElementById('navBtnText');
+
+            if (isNavigating) {
+                // 停止导航
+                isNavigating = false;
+                clearInterval(navigationTimer);
+                btn.classList.remove('from-red-500', 'to-red-600');
+                btn.classList.add('from-primary-500', 'to-primary-600');
+                icon.textContent = 'play_arrow';
+                text.textContent = '开始导航';
+            } else {
+                // 开始导航
+                isNavigating = true;
+                const dest = destinations[document.getElementById('destination').value];
+                progress = 0;
+
+                btn.classList.remove('from-primary-500', 'to-primary-600');
+                btn.classList.add('from-red-500', 'to-red-600');
+                icon.textContent = 'stop';
+                text.textContent = '停止导航';
+
+                // 模拟导航进程
+                const totalSeconds = dest.eta * 60;
+                const interval = 1000; // 每秒更新一次
+                const increment = 100 / totalSeconds;
+
+                navigationTimer = setInterval(() => {
+                    progress += increment;
+
+                    if (progress >= 100) {
+                        progress = 100;
+                        clearInterval(navigationTimer);
+                        isNavigating = false;
+
+                        btn.classList.remove('from-red-500', 'to-red-600');
+                        btn.classList.add('from-primary-500', 'to-primary-600');
+                        icon.textContent = 'check';
+                        text.textContent = '到达目的地';
+
+                        // 到达提示
+                        setTimeout(() => {
+                            icon.textContent = 'play_arrow';
+                            text.textContent = '开始导航';
+                            progress = 0;
+                            document.getElementById('progressBar').style.width = '0%';
+                            document.getElementById('progressPercent').textContent = '0';
+                        }, 3000);
+                    }
+
+                    const remaining = Math.ceil(dest.eta * (1 - progress / 100));
+                    document.getElementById('progressBar').style.width = progress + '%';
+                    document.getElementById('progressPercent').textContent = Math.floor(progress);
+                    document.getElementById('progressTime').textContent = '剩余 ' + remaining + ' 分钟';
+
+                    // 动态更新下一步指令
+                    if (progress > 30 && progress < 60) {
+                        document.getElementById('nextIcon').textContent = 'straight';
+                        document.getElementById('nextInstruction').textContent = '直行200米';
+                    } else if (progress >= 60 && progress < 80) {
+                        document.getElementById('nextIcon').textContent = 'turn_right';
+                        document.getElementById('nextInstruction').textContent = '前方30米右转';
+                    } else if (progress >= 80) {
+                        document.getElementById('nextIcon').textContent = 'near_me';
+                        document.getElementById('nextInstruction').textContent = '即将到达目的地';
+                    }
+                }, interval);
+            }
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function () {
+            updateNavigation();
+        });
+    </script>
+
+</body>
+
+</html>

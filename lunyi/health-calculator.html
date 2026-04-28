@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康计算器 - 智能轮椅</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        blue: {
+                            50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd',
+                            400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8',
+                            800: '#1e40af', 900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
+        }
+
+        .glow-blue {
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.3);
+        }
+
+        .result-card {
+            transition: all 0.5s ease;
+        }
+
+        .tab-active {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body class="gradient-bg min-h-screen text-white">
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-card">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+                    <span class="material-icons text-3xl text-blue-400">accessible</span>
+                    <span class="text-xl font-bold text-blue-400">智能轮椅</span>
+                </a>
+                <div class="flex items-center space-x-4">
+                    <span class="text-blue-300 text-sm hidden sm:block">健康计算器</span>
+                    <a href="index.html"
+                        class="glass-card px-4 py-2 rounded-full text-sm hover:bg-white/20 transition-all">
+                        返回首页
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄区域 -->
+    <section class="pt-24 pb-12 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12 animate__animated animate__fadeInUp">
+                <span class="inline-block px-4 py-2 rounded-full bg-blue-500/20 text-blue-300 text-sm font-medium mb-4">
+                    <span class="material-icons text-sm align-middle mr-1">calculate</span>
+                    智能计算
+                </span>
+                <h1 class="text-4xl md:text-6xl font-bold mb-4">
+                    <span class="bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent">
+                        健康计算器
+                    </span>
+                </h1>
+                <p class="text-xl text-gray-400 max-w-2xl mx-auto">
+                    科学计算BMI、卡路里消耗，提供个性化健康建议
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 计算器标签切换 -->
+    <section class="px-6">
+        <div class="max-w-4xl mx-auto">
+            <div class="flex flex-wrap justify-center gap-2 mb-8">
+                <button onclick="switchTab('bmi')" id="tab-bmi"
+                    class="tab-active px-6 py-3 rounded-full font-medium transition-all flex items-center gap-2">
+                    <span class="material-icons text-sm">monitor_weight</span>
+                    BMI计算
+                </button>
+                <button onclick="switchTab('calorie')" id="tab-calorie"
+                    class="glass-card px-6 py-3 rounded-full font-medium transition-all flex items-center gap-2 hover:bg-white/20">
+                    <span class="material-icons text-sm">local_fire_department</span>
+                    卡路里计算
+                </button>
+                <button onclick="switchTab('water')" id="tab-water"
+                    class="glass-card px-6 py-3 rounded-full font-medium transition-all flex items-center gap-2 hover:bg-white/20">
+                    <span class="material-icons text-sm">water_drop</span>
+                    饮水量
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- BMI计算器 -->
+    <section id="section-bmi" class="py-8 px-6">
+        <div class="max-w-4xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- 输入区域 -->
+                <div class="glass-card rounded-3xl p-6">
+                    <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                        <span class="material-icons text-blue-400">monitor_weight</span>
+                        BMI身体质量指数
+                    </h3>
+
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">身高 (cm)</label>
+                            <div class="flex items-center gap-4">
+                                <input type="range" id="height" min="140" max="200" value="170"
+                                    class="flex-1 h-2 bg-white/10 rounded-lg appearance-none cursor-pointer"
+                                    oninput="updateBMI()">
+                                <span class="text-2xl font-bold text-blue-400 w-16 text-center"
+                                    id="heightValue">170</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">体重 (kg)</label>
+                            <div class="flex items-center gap-4">
+                                <input type="range" id="weight" min="40" max="120" value="65"
+                                    class="flex-1 h-2 bg-white/10 rounded-lg appearance-none cursor-pointer"
+                                    oninput="updateBMI()">
+                                <span class="text-2xl font-bold text-blue-400 w-16 text-center"
+                                    id="weightValue">65</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">年龄</label>
+                            <div class="flex items-center gap-4">
+                                <input type="range" id="age" min="18" max="100" value="45"
+                                    class="flex-1 h-2 bg-white/10 rounded-lg appearance-none cursor-pointer"
+                                    oninput="updateBMI()">
+                                <span class="text-2xl font-bold text-blue-400 w-16 text-center" id="ageValue">45</span>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4">
+                            <button onclick="updateBMI()"
+                                class="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 py-3 rounded-xl font-semibold hover:shadow-lg hover:shadow-blue-500/50 transition-all">
+                                计算BMI
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 结果区域 -->
+                <div class="glass-card rounded-3xl p-6 glow-blue">
+                    <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                        <span class="material-icons text-green-400">assessment</span>
+                        计算结果
+                    </h3>
+
+                    <div class="text-center mb-6">
+                        <div class="text-6xl font-bold mb-2" id="bmiResult">22.5</div>
+                        <div class="text-xl" id="bmiStatus">正常</div>
+                    </div>
+
+                    <!-- BMI标尺 -->
+                    <div class="relative h-4 rounded-full overflow-hidden mb-6">
+                        <div class="absolute inset-0 flex">
+                            <div class="flex-1 bg-blue-400" title="偏瘦"></div>
+                            <div class="flex-1 bg-green-400" title="正常"></div>
+                            <div class="flex-1 bg-yellow-400" title="超重"></div>
+                            <div class="flex-1 bg-orange-400" title="肥胖"></div>
+                            <div class="flex-1 bg-red-400" title="重度肥胖"></div>
+                        </div>
+                        <div class="absolute w-3 h-6 bg-white rounded top-1/2 -translate-y-1/2 transition-all"
+                            id="bmiIndicator" style="left: 50%;"></div>
+                    </div>
+
+                    <div class="grid grid-cols-5 gap-1 text-xs text-center text-gray-400 mb-6">
+                        <span>&lt;18.5</span>
+                        <span>18.5-24</span>
+                        <span>24-28</span>
+                        <span>28-32</span>
+                        <span>&gt;32</span>
+                    </div>
+
+                    <div class="p-4 bg-white/5 rounded-xl">
+                        <h4 class="font-medium mb-2">健康建议</h4>
+                        <p class="text-sm text-gray-400" id="bmiAdvice">
+                            您的BMI处于正常范围，请继续保持健康的生活方式和均衡饮食。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 卡路里计算器 -->
+    <section id="section-calorie" class="py-8 px-6 hidden">
+        <div class="max-w-4xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="glass-card rounded-3xl p-6">
+                    <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                        <span class="material-icons text-orange-400">local_fire_department</span>
+                        每日卡路里消耗
+                    </h3>
+
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">体重 (kg)</label>
+                            <input type="number" id="calWeight" value="65"
+                                class="w-full bg-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">活动强度</label>
+                            <select id="activityLevel"
+                                class="w-full bg-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="1.2">久坐（几乎不运动）</option>
+                                <option value="1.375" selected>轻度活动（每周1-3天）</option>
+                                <option value="1.55">中度活动（每周3-5天）</option>
+                                <option value="1.725">高度活动（每周6-7天）</option>
+                                <option value="1.9">极高强度活动</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">今日轮椅使用时长（小时）</label>
+                            <input type="number" id="wheelchairHours" value="4"
+                                class="w-full bg-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+
+                        <button onclick="calculateCalorie()"
+                            class="w-full bg-gradient-to-r from-orange-500 to-orange-600 py-3 rounded-xl font-semibold hover:shadow-lg hover:shadow-orange-500/50 transition-all">
+                            计算卡路里
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-3xl p-6">
+                    <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                        <span class="material-icons text-green-400">insights</span>
+                        消耗分析
+                    </h3>
+
+                    <div class="text-center mb-6">
+                        <div class="text-5xl font-bold text-orange-400 mb-2" id="totalCalories">1,850</div>
+                        <div class="text-gray-400">千卡/天</div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="p-4 bg-white/5 rounded-xl">
+                            <div class="flex justify-between items-center mb-2">
+                                <span>基础代谢</span>
+                                <span class="text-blue-400 font-medium" id="bmr">1,450 kcal</span>
+                            </div>
+                            <div class="h-2 bg-white/10 rounded-full overflow-hidden">
+                                <div class="h-full bg-blue-400 rounded-full" id="bmrBar" style="width: 78%"></div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-white/5 rounded-xl">
+                            <div class="flex justify-between items-center mb-2">
+                                <span>活动消耗</span>
+                                <span class="text-orange-400 font-medium" id="activityCal">320 kcal</span>
+                            </div>
+                            <div class="h-2 bg-white/10 rounded-full overflow-hidden">
+                                <div class="h-full bg-orange-400 rounded-full" id="activityBar" style="width: 17%">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-white/5 rounded-xl">
+                            <div class="flex justify-between items-center mb-2">
+                                <span>轮椅操作消耗</span>
+                                <span class="text-green-400 font-medium" id="wheelchairCal">80 kcal</span>
+                            </div>
+                            <div class="h-2 bg-white/10 rounded-full overflow-hidden">
+                                <div class="h-full bg-green-400 rounded-full" id="wheelchairBar" style="width: 5%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 饮水量计算 -->
+    <section id="section-water" class="py-8 px-6 hidden">
+        <div class="max-w-4xl mx-auto">
+            <div class="glass-card rounded-3xl p-8">
+                <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                    <span class="material-icons text-cyan-400">water_drop</span>
+                    每日饮水建议
+                </h3>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">体重 (kg)</label>
+                            <input type="number" id="waterWeight" value="65"
+                                class="w-full bg-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">活动强度</label>
+                            <select id="waterActivity"
+                                class="w-full bg-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                                <option value="low">低强度（久坐）</option>
+                                <option value="medium" selected>中等强度</option>
+                                <option value="high">高强度活动</option>
+                            </select>
+                        </div>
+
+                        <button onclick="calculateWater()"
+                            class="w-full bg-gradient-to-r from-cyan-500 to-cyan-600 py-3 rounded-xl font-semibold hover:shadow-lg hover:shadow-cyan-500/50 transition-all">
+                            计算饮水量
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <div class="relative inline-block">
+                            <svg class="w-48 h-48">
+                                <circle cx="96" cy="96" r="80" stroke="rgba(255,255,255,0.1)" stroke-width="12"
+                                    fill="none" />
+                                <circle cx="96" cy="96" r="80" stroke="#22d3ee" stroke-width="12" fill="none"
+                                    stroke-dasharray="502" stroke-dashoffset="125" stroke-linecap="round"
+                                    style="transform: rotate(-90deg); transform-origin: center;" />
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div>
+                                    <div class="text-4xl font-bold text-cyan-400" id="waterAmount">2.0</div>
+                                    <div class="text-gray-400">升/天</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 grid grid-cols-4 gap-2">
+                            <div class="p-3 bg-white/5 rounded-xl text-center">
+                                <div class="text-lg font-bold text-cyan-400">4</div>
+                                <div class="text-xs text-gray-400">杯水</div>
+                            </div>
+                            <div class="p-3 bg-white/5 rounded-xl text-center">
+                                <div class="text-lg font-bold text-cyan-400">8</div>
+                                <div class="text-xs text-gray-400">杯/日</div>
+                            </div>
+                            <div class="p-3 bg-white/5 rounded-xl text-center">
+                                <div class="text-lg font-bold text-cyan-400">250</div>
+                                <div class="text-xs text-gray-400">ml/杯</div>
+                            </div>
+                            <div class="p-3 bg-white/5 rounded-xl text-center">
+                                <div class="text-lg font-bold text-cyan-400">2h</div>
+                                <div class="text-xs text-gray-400">间隔</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 健康数据记录 -->
+    <section class="py-16 px-6">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-8">
+                <span class="bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent">
+                    健康数据记录
+                </span>
+            </h2>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass-card rounded-2xl p-6 text-center card-hover transition-all duration-300">
+                    <div class="w-16 h-16 mx-auto rounded-full bg-blue-500/20 flex items-center justify-center mb-4">
+                        <span class="material-icons text-3xl text-blue-400">trending_down</span>
+                    </div>
+                    <div class="text-3xl font-bold text-blue-400 mb-1">-2.5kg</div>
+                    <div class="text-sm text-gray-400">本月体重变化</div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 text-center card-hover transition-all duration-300">
+                    <div class="w-16 h-16 mx-auto rounded-full bg-green-500/20 flex items-center justify-center mb-4">
+                        <span class="material-icons text-3xl text-green-400">local_fire_department</span>
+                    </div>
+                    <div class="text-3xl font-bold text-green-400 mb-1">12,450</div>
+                    <div class="text-sm text-gray-400">本月消耗卡路里</div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 text-center card-hover transition-all duration-300">
+                    <div class="w-16 h-16 mx-auto rounded-full bg-cyan-500/20 flex items-center justify-center mb-4">
+                        <span class="material-icons text-3xl text-cyan-400">water_drop</span>
+                    </div>
+                    <div class="text-3xl font-bold text-cyan-400 mb-1">85%</div>
+                    <div class="text-sm text-gray-400">饮水目标达成率</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 返回按钮 -->
+    <section class="py-12 px-6">
+        <div class="max-w-7xl mx-auto text-center">
+            <a href="index.html"
+                class="inline-flex items-center gap-2 glass-card px-8 py-4 rounded-full hover:bg-white/20 transition-all">
+                <span class="material-icons">arrow_back</span>
+                返回首页
+            </a>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="py-8 border-t border-white/10">
+        <div class="max-w-7xl mx-auto px-6 text-center text-gray-500 text-sm">
+            © 2024 智能轮椅. 保留所有权利.
+        </div>
+    </footer>
+
+    <script>
+        // 标签切换
+        function switchTab(tab) {
+            // 隐藏所有section
+            document.querySelectorAll('[id^="section-"]').forEach(s => s.classList.add('hidden'));
+            // 显示选中section
+            document.getElementById('section-' + tab).classList.remove('hidden');
+
+            // 更新标签样式
+            document.querySelectorAll('[id^="tab-"]').forEach(t => {
+                t.classList.remove('tab-active');
+                t.classList.add('glass-card');
+            });
+            document.getElementById('tab-' + tab).classList.add('tab-active');
+            document.getElementById('tab-' + tab).classList.remove('glass-card');
+        }
+
+        // BMI计算
+        function updateBMI() {
+            const height = parseInt(document.getElementById('height').value);
+            const weight = parseInt(document.getElementById('weight').value);
+            const age = parseInt(document.getElementById('age').value);
+
+            document.getElementById('heightValue').textContent = height;
+            document.getElementById('weightValue').textContent = weight;
+            document.getElementById('ageValue').textContent = age;
+
+            const bmi = (weight / Math.pow(height / 100, 2)).toFixed(1);
+            document.getElementById('bmiResult').textContent = bmi;
+
+            // 计算指示器位置
+            let position = ((bmi - 15) / 25) * 100;
+            position = Math.max(0, Math.min(100, position));
+            document.getElementById('bmiIndicator').style.left = position + '%';
+
+            // 状态和建议
+            let status, advice, colorClass;
+            if (bmi < 18.5) {
+                status = '偏瘦';
+                colorClass = 'text-blue-400';
+                advice = '您的体重偏低，建议适当增加营养摄入，多吃富含蛋白质的食物。';
+            } else if (bmi < 24) {
+                status = '正常';
+                colorClass = 'text-green-400';
+                advice = '您的BMI处于正常范围，请继续保持健康的生活方式和均衡饮食。';
+            } else if (bmi < 28) {
+                status = '超重';
+                colorClass = 'text-yellow-400';
+                advice = '您的体重略微超标，建议适当控制饮食，增加日常活动量。';
+            } else if (bmi < 32) {
+                status = '肥胖';
+                colorClass = 'text-orange-400';
+                advice = '建议咨询医生或营养师，制定合理的减重计划，注意饮食结构。';
+            } else {
+                status = '重度肥胖';
+                colorClass = 'text-red-400';
+                advice = '建议尽快就医，在专业指导下进行健康管理。';
+            }
+
+            const statusEl = document.getElementById('bmiStatus');
+            statusEl.textContent = status;
+            statusEl.className = 'text-xl ' + colorClass;
+            document.getElementById('bmiAdvice').textContent = advice;
+        }
+
+        // 卡路里计算
+        function calculateCalorie() {
+            const weight = parseFloat(document.getElementById('calWeight').value);
+            const activity = parseFloat(document.getElementById('activityLevel').value);
+            const hours = parseFloat(document.getElementById('wheelchairHours').value);
+
+            // 基础代谢率 (简化公式)
+            const bmr = Math.round(weight * 22 * 24);
+            const totalCal = Math.round(bmr * activity);
+            const wheelchairCal = Math.round(hours * 20);
+
+            document.getElementById('totalCalories').textContent = totalCal.toLocaleString();
+            document.getElementById('bmr').textContent = bmr.toLocaleString() + ' kcal';
+            document.getElementById('activityCal').textContent = Math.round(totalCal - bmr) + ' kcal';
+            document.getElementById('wheelchairCal').textContent = wheelchairCal + ' kcal';
+
+            // 更新进度条
+            document.getElementById('bmrBar').style.width = (bmr / totalCal * 100) + '%';
+            document.getElementById('activityBar').style.width = ((totalCal - bmr) / totalCal * 100) + '%';
+            document.getElementById('wheelchairBar').style.width = (wheelchairCal / totalCal * 100) + '%';
+        }
+
+        // 饮水量计算
+        function calculateWater() {
+            const weight = parseFloat(document.getElementById('waterWeight').value);
+            const activity = document.getElementById('waterActivity').value;
+
+            let multiplier = 30;
+            if (activity === 'high') multiplier = 40;
+            else if (activity === 'low') multiplier = 25;
+
+            const water = (weight * multiplier / 1000).toFixed(1);
+            document.getElementById('waterAmount').textContent = water;
+        }
+
+        // 初始化
+        updateBMI();
+    </script>
+</body>
+
+</html>

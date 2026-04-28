@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康检测 - 智能轮椅</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        rose: {
+                            50: '#fff1f2', 100: '#ffe4e6', 200: '#fecdd3', 300: '#fda4af',
+                            400: '#fb7185', 500: '#f43f5e', 600: '#e11d48', 700: '#be123c',
+                            800: '#9f1239', 900: '#881337',
+                        },
+                        primary: {
+                            50: '#ecfeff', 100: '#cffafe', 200: '#a5f3fc', 300: '#67e8f9',
+                            400: '#22d3ee', 500: '#06b6d4', 600: '#0891b2', 700: '#0e7490',
+                            800: '#155e75', 900: '#164e63',
+                        }
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        'pulse-glow': {
+                            '0%, 100%': { opacity: 1, boxShadow: '0 0 20px rgba(244, 63, 94, 0.4)' },
+                            '50%': { opacity: 0.7, boxShadow: '0 0 40px rgba(244, 63, 94, 0.6)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(244, 63, 94, 0.3) transparent;
+        }
+
+        *::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background: rgba(244, 63, 94, 0.3);
+            border-radius: 4px;
+        }
+
+        *::-webkit-scrollbar-thumb:hover {
+            background: rgba(244, 63, 94, 0.5);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #0a0f1a 0%, #131b2e 25%, #1a2438 50%, #131b2e 75%, #0a0f1a 100%);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .gradient-bg::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at 20% 20%, rgba(244, 63, 94, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 30px 60px rgba(244, 63, 94, 0.3);
+            border-color: rgba(244, 63, 94, 0.3);
+        }
+
+        .text-gradient-rose {
+            background: linear-gradient(135deg, #fb7185, #f43f5e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .health-progress-ring {
+            transition: stroke-dashoffset 0.5s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .heartbeat {
+            animation: heartbeat 1s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .content-section {
+            position: relative;
+            z-index: 10;
+        }
+    </style>
+</head>
+
+<body class="gradient-bg min-h-screen text-white overflow-x-hidden">
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-card">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+                    <span class="material-icons text-3xl text-rose-400">accessible</span>
+                    <span class="text-xl font-bold text-gradient-rose">智能轮椅</span>
+                </a>
+                <div class="flex items-center space-x-4">
+                    <span class="text-rose-300 text-sm hidden sm:block">健康检测系统</span>
+                    <a href="index.html"
+                        class="glass-card px-4 py-2 rounded-full text-sm hover:bg-white/20 transition-all border border-white/20">
+                        <span class="flex items-center gap-2">
+                            <span class="material-icons text-sm">home</span>返回首页
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄区域 -->
+    <section class="pt-24 pb-12 px-6 content-section">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12 animate__animated animate__fadeInUp">
+                <span
+                    class="inline-block px-6 py-3 rounded-full bg-gradient-to-r from-rose-500/20 to-pink-500/20 text-rose-300 text-sm font-medium mb-4 border border-rose-400/20">
+                    <span class="material-icons text-sm align-middle mr-1">favorite</span>
+                    24小时守护
+                </span>
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold mb-4">
+                    <span class="text-gradient-rose">健康检测系统</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                    实时监测心率、血压、血氧等关键健康指标，智能预警守护您的健康
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 实时健康监测面板 -->
+    <section class="py-8 px-6 content-section">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid lg:grid-cols-3 gap-6">
+                <!-- 心率监测 -->
+                <div class="glass-card rounded-3xl p-6 card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold flex items-center gap-2">
+                            <span class="material-icons text-rose-400 heartbeat">favorite</span>
+                            心率
+                        </h3>
+                        <span class="text-xs px-3 py-1 bg-green-500/20 text-green-400 rounded-full">正常</span>
+                    </div>
+
+                    <div class="flex items-center justify-center mb-4">
+                        <div class="relative">
+                            <svg class="w-32 h-32">
+                                <circle cx="64" cy="64" r="56" stroke="rgba(255,255,255,0.1)" stroke-width="8"
+                                    fill="none" />
+                                <circle cx="64" cy="64" r="56" stroke="url(#heartGradient)" stroke-width="8" fill="none"
+                                    class="health-progress-ring" stroke-dasharray="352" stroke-dashoffset="70"
+                                    stroke-linecap="round" />
+                                <defs>
+                                    <linearGradient id="heartGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" style="stop-color:#f43f5e" />
+                                        <stop offset="100%" style="stop-color:#fb7185" />
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="text-center">
+                                    <div class="text-3xl font-bold text-rose-400" id="heartRate">72</div>
+                                    <div class="text-xs text-gray-400">BPM</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center text-sm text-gray-400">
+                        正常范围: 60-100 BPM
+                    </div>
+                </div>
+
+                <!-- 血压监测 -->
+                <div class="glass-card rounded-3xl p-6 card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold flex items-center gap-2">
+                            <span class="material-icons text-blue-400">bloodtype</span>
+                            血压
+                        </h3>
+                        <span class="text-xs px-3 py-1 bg-green-500/20 text-green-400 rounded-full">正常</span>
+                    </div>
+
+                    <div class="flex items-center justify-center mb-4">
+                        <div class="text-center">
+                            <div class="flex items-baseline justify-center gap-1">
+                                <span class="text-4xl font-bold text-blue-400" id="systolic">120</span>
+                                <span class="text-xl text-gray-400">/</span>
+                                <span class="text-3xl font-bold text-blue-300" id="diastolic">80</span>
+                            </div>
+                            <div class="text-sm text-gray-400 mt-1">mmHg</div>
+                        </div>
+                    </div>
+
+                    <div class="w-full bg-white/10 rounded-full h-2 mb-2">
+                        <div class="bg-gradient-to-r from-blue-400 to-blue-500 h-2 rounded-full" style="width: 60%">
+                        </div>
+                    </div>
+                    <div class="text-center text-sm text-gray-400">
+                        正常范围: 90-140/60-90 mmHg
+                    </div>
+                </div>
+
+                <!-- 血氧监测 -->
+                <div class="glass-card rounded-3xl p-6 card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold flex items-center gap-2">
+                            <span class="material-icons text-cyan-400">air</span>
+                            血氧
+                        </h3>
+                        <span class="text-xs px-3 py-1 bg-green-500/20 text-green-400 rounded-full">正常</span>
+                    </div>
+
+                    <div class="flex items-center justify-center mb-4">
+                        <div class="relative">
+                            <svg class="w-32 h-32">
+                                <circle cx="64" cy="64" r="56" stroke="rgba(255,255,255,0.1)" stroke-width="8"
+                                    fill="none" />
+                                <circle cx="64" cy="64" r="56" stroke="#22d3ee" stroke-width="8" fill="none"
+                                    class="health-progress-ring" stroke-dasharray="352" stroke-dashoffset="35"
+                                    stroke-linecap="round" />
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="text-center">
+                                    <div class="text-3xl font-bold text-cyan-400" id="oxygen">98</div>
+                                    <div class="text-xs text-gray-400">%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center text-sm text-gray-400">
+                        正常范围: 95-100%
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 心电图展示 -->
+    <section class="py-8 px-6 content-section">
+        <div class="max-w-6xl mx-auto">
+            <div class="glass-card rounded-3xl p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold flex items-center gap-2">
+                        <span class="material-icons text-rose-400">monitor_heart</span>
+                        实时心电图
+                    </h3>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 bg-rose-400 rounded-full animate-pulse"></span>
+                        <span class="text-sm text-rose-400">实时监测中</span>
+                    </div>
+                </div>
+
+                <div class="h-48 relative">
+                    <canvas id="ecgChart"></canvas>
+                </div>
+
+                <div class="grid grid-cols-4 gap-4 mt-6">
+                    <div class="text-center">
+                        <div class="text-sm text-gray-400">平均心率</div>
+                        <div class="text-xl font-bold text-rose-400">72 BPM</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-sm text-gray-400">最高心率</div>
+                        <div class="text-xl font-bold text-amber-400">89 BPM</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-sm text-gray-400">最低心率</div>
+                        <div class="text-xl font-bold text-blue-400">65 BPM</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-sm text-gray-400">心率变异性</div>
+                        <div class="text-xl font-bold text-green-400">良好</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 健康报告 -->
+    <section class="py-8 px-6 content-section">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid lg:grid-cols-2 gap-6">
+                <!-- 今日健康报告 -->
+                <div class="glass-card rounded-3xl p-6">
+                    <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                        <span class="material-icons text-green-400">assessment</span>
+                        今日健康报告
+                    </h3>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-rose-500/20 flex items-center justify-center">
+                                    <span class="material-icons text-rose-400">favorite</span>
+                                </div>
+                                <div>
+                                    <div class="font-medium">心率健康</div>
+                                    <div class="text-sm text-gray-400">全天平均 72 BPM</div>
+                                </div>
+                            </div>
+                            <span class="text-green-400 font-medium">正常</span>
+                        </div>
+
+                        <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+                                    <span class="material-icons text-blue-400">bloodtype</span>
+                                </div>
+                                <div>
+                                    <div class="font-medium">血压状况</div>
+                                    <div class="text-sm text-gray-400">平均 118/78 mmHg</div>
+                                </div>
+                            </div>
+                            <span class="text-green-400 font-medium">理想</span>
+                        </div>
+
+                        <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-cyan-500/20 flex items-center justify-center">
+                                    <span class="material-icons text-cyan-400">air</span>
+                                </div>
+                                <div>
+                                    <div class="font-medium">血氧饱和度</div>
+                                    <div class="text-sm text-gray-400">平均 98%</div>
+                                </div>
+                            </div>
+                            <span class="text-green-400 font-medium">优秀</span>
+                        </div>
+
+                        <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
+                                    <span class="material-icons text-amber-400">thermostat</span>
+                                </div>
+                                <div>
+                                    <div class="font-medium">体温</div>
+                                    <div class="text-sm text-gray-400">当前 36.5°C</div>
+                                </div>
+                            </div>
+                            <span class="text-green-400 font-medium">正常</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 健康预警设置 -->
+                <div class="glass-card rounded-3xl p-6">
+                    <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                        <span class="material-icons text-amber-400">notifications_active</span>
+                        健康预警设置
+                    </h3>
+
+                    <div class="space-y-4">
+                        <div class="p-4 bg-white/5 rounded-xl">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="font-medium">心率异常预警</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" checked class="sr-only peer">
+                                    <div
+                                        class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500">
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="flex-1">
+                                    <label class="text-xs text-gray-400">最低阈值</label>
+                                    <input type="number" value="50"
+                                        class="w-full bg-white/10 rounded-lg px-3 py-2 mt-1 text-sm">
+                                </div>
+                                <div class="flex-1">
+                                    <label class="text-xs text-gray-400">最高阈值</label>
+                                    <input type="number" value="120"
+                                        class="w-full bg-white/10 rounded-lg px-3 py-2 mt-1 text-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-white/5 rounded-xl">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="font-medium">血压异常预警</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" checked class="sr-only peer">
+                                    <div
+                                        class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500">
+                                    </div>
+                                </label>
+                            </div>
+                            <p class="text-sm text-gray-400">当血压超过 140/90 mmHg 时自动预警</p>
+                        </div>
+
+                        <div class="p-4 bg-white/5 rounded-xl">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="font-medium">血氧异常预警</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" checked class="sr-only peer">
+                                    <div
+                                        class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500">
+                                    </div>
+                                </label>
+                            </div>
+                            <p class="text-sm text-gray-400">当血氧低于 95% 时自动预警</p>
+                        </div>
+
+                        <div class="p-4 bg-white/5 rounded-xl">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span class="font-medium">紧急联系人</span>
+                                    <p class="text-sm text-gray-400">异常时自动通知家人</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" checked class="sr-only peer">
+                                    <div
+                                        class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500">
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 传感器介绍 -->
+    <section class="py-16 px-6 content-section">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-12">
+                <span class="text-gradient-rose">健康传感器</span>
+            </h2>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="glass-card rounded-2xl p-6 card-hover">
+                    <div class="w-12 h-12 rounded-xl bg-rose-500/20 flex items-center justify-center mb-4">
+                        <span class="material-icons text-rose-400">sensors</span>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">PPG光学传感器</h3>
+                    <p class="text-sm text-gray-400">高精度心率、血氧检测，医疗级精度</p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 card-hover">
+                    <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center mb-4">
+                        <span class="material-icons text-blue-400">compress</span>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">压力传感器</h3>
+                    <p class="text-sm text-gray-400">实时血压监测，误差小于±3mmHg</p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 card-hover">
+                    <div class="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center mb-4">
+                        <span class="material-icons text-amber-400">thermostat</span>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">温度传感器</h3>
+                    <p class="text-sm text-gray-400">红外体温检测，精度±0.1°C</p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 card-hover">
+                    <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center mb-4">
+                        <span class="material-icons text-green-400">speed</span>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">运动传感器</h3>
+                    <p class="text-sm text-gray-400">6轴IMU传感器，追踪运动状态</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 返回按钮 -->
+    <section class="py-12 px-6 content-section">
+        <div class="max-w-7xl mx-auto text-center">
+            <a href="index.html"
+                class="inline-flex items-center gap-2 glass-card px-8 py-4 rounded-full hover:bg-white/20 transition-all border border-white/20">
+                <span class="material-icons">arrow_back</span>
+                返回首页
+            </a>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="py-8 border-t border-white/10 relative z-10">
+        <div class="max-w-7xl mx-auto px-6 text-center text-gray-500 text-sm">
+            © 2024 智能轮椅. 保留所有权利.
+        </div>
+    </footer>
+
+    <script>
+        // 模拟心电图数据
+        const ctx = document.getElementById('ecgChart').getContext('2d');
+        const ecgData = [];
+        for (let i = 0; i < 100; i++) {
+            ecgData.push(Math.sin(i * 0.1) * 10 + Math.random() * 5);
+        }
+
+        const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+        gradient.addColorStop(0, 'rgba(244, 63, 94, 0.5)');
+        gradient.addColorStop(1, 'rgba(244, 63, 94, 0)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array(100).fill(''),
+                datasets: [{
+                    data: ecgData,
+                    borderColor: '#f43f5e',
+                    backgroundColor: gradient,
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 2,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { display: false },
+                    y: { display: false }
+                },
+                animation: {
+                    duration: 0
+                }
+            }
+        });
+
+        // 健康数据动态更新
+        let baseHeartRate = 72;
+        let baseSystolic = 120;
+        let baseDiastolic = 80;
+        let baseOxygen = 98;
+        let isMonitoring = true;
+
+        // 更新心率显示
+        function updateHeartRate() {
+            if (!isMonitoring) return;
+
+            // 模拟心率波动
+            const fluctuation = Math.floor(Math.random() * 8) - 4;
+            let heartRate = baseHeartRate + fluctuation;
+            heartRate = Math.max(55, Math.min(115, heartRate)); // 限制范围
+
+            document.getElementById('heartRate').textContent = heartRate;
+
+            // 更新进度环
+            const maxHeartRate = 140;
+            const minHeartRate = 40;
+            const progress = ((heartRate - minHeartRate) / (maxHeartRate - minHeartRate)) * 100;
+            const offset = 352 - (352 * progress / 100);
+            document.querySelector('#heartRate').closest('.relative').querySelector('svg circle:last-child').style.strokeDashoffset = offset;
+
+            // 状态颜色
+            const statusEl = document.querySelector('#heartRate').closest('.glass-card').querySelector('span:last-child');
+            if (heartRate < 60 || heartRate > 100) {
+                statusEl.textContent = '异常';
+                statusEl.className = 'text-xs px-3 py-1 bg-red-500/20 text-red-400 rounded-full';
+            } else {
+                statusEl.textContent = '正常';
+                statusEl.className = 'text-xs px-3 py-1 bg-green-500/20 text-green-400 rounded-full';
+            }
+        }
+
+        // 更新血压显示
+        function updateBloodPressure() {
+            if (!isMonitoring) return;
+
+            // 模拟血压波动
+            const sysFluctuation = Math.floor(Math.random() * 10) - 5;
+            const diaFluctuation = Math.floor(Math.random() * 6) - 3;
+
+            let systolic = baseSystolic + sysFluctuation;
+            let diastolic = baseDiastolic + diaFluctuation;
+
+            systolic = Math.max(85, Math.min(155, systolic));
+            diastolic = Math.max(55, Math.min(95, diastolic));
+
+            document.getElementById('systolic').textContent = systolic;
+            document.getElementById('diastolic').textContent = diastolic;
+
+            // 状态颜色
+            const statusEl = document.querySelector('#systolic').closest('.glass-card').querySelector('span:last-child');
+            if (systolic > 140 || diastolic > 90 || systolic < 90 || diastolic < 60) {
+                statusEl.textContent = '异常';
+                statusEl.className = 'text-xs px-3 py-1 bg-red-500/20 text-red-400 rounded-full';
+            } else {
+                statusEl.textContent = '正常';
+                statusEl.className = 'text-xs px-3 py-1 bg-green-500/20 text-green-400 rounded-full';
+            }
+        }
+
+        // 更新血氧显示
+        function updateOxygen() {
+            if (!isMonitoring) return;
+
+            // 模拟血氧波动
+            const fluctuation = Math.floor(Math.random() * 3) - 1;
+            let oxygen = baseOxygen + fluctuation;
+            oxygen = Math.max(93, Math.min(100, oxygen));
+
+            document.getElementById('oxygen').textContent = oxygen;
+
+            // 更新进度环
+            const progress = (oxygen / 100) * 100;
+            const offset = 352 - (352 * progress / 100);
+            document.querySelector('#oxygen').closest('.relative').querySelector('svg circle:last-child').style.strokeDashoffset = offset;
+
+            // 状态颜色
+            const statusEl = document.querySelector('#oxygen').closest('.glass-card').querySelector('span:last-child');
+            if (oxygen < 95) {
+                statusEl.textContent = '偏低';
+                statusEl.className = 'text-xs px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full';
+            } else {
+                statusEl.textContent = '正常';
+                statusEl.className = 'text-xs px-3 py-1 bg-green-500/20 text-green-400 rounded-full';
+            }
+        }
+
+        // 模拟心电图波动
+        function updateECG() {
+            if (!isMonitoring) return;
+
+            const chart = Chart.getChart('ecgChart');
+            if (chart) {
+                // 移动数据
+                const data = chart.data.datasets[0].data;
+                data.shift();
+                data.push(Math.sin(Math.random() * 10) * 10 + Math.random() * 5);
+                chart.update('none');
+            }
+        }
+
+        // 定时更新
+        setInterval(updateHeartRate, 1500);
+        setInterval(updateBloodPressure, 2000);
+        setInterval(updateOxygen, 2500);
+        setInterval(updateECG, 100);
+
+        // 心跳动画效果
+        setInterval(() => {
+            if (!isMonitoring) return;
+            const heartIcon = document.querySelector('.heartbeat');
+            if (heartIcon) {
+                heartIcon.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    heartIcon.style.transform = 'scale(1)';
+                }, 150);
+            }
+        }, 1000);
+
+        // 更新统计信息
+        setInterval(() => {
+            if (!isMonitoring) return;
+
+            // 更新平均心率
+            const avgHR = 68 + Math.floor(Math.random() * 10);
+            document.querySelector('.grid-cols-4 > div:first-child .text-xl').textContent = avgHR + ' BPM';
+
+            // 更新最高/最低心率
+            const maxHR = avgHR + 10 + Math.floor(Math.random() * 10);
+            const minHR = avgHR - 10 - Math.floor(Math.random() * 10);
+            document.querySelectorAll('.grid-cols-4 .text-xl')[1].textContent = maxHR + ' BPM';
+            document.querySelectorAll('.grid-cols-4 .text-xl')[2].textContent = minHR + ' BPM';
+        }, 3000);
+
+    </script>
+</body>
+
+</html>

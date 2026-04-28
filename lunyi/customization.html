@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个性化定制 - 智能轮椅</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        indigo: {
+                            50: '#eef2ff', 100: '#e0e7ff', 200: '#c7d2fe', 300: '#a5b4fc',
+                            400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca',
+                            800: '#3730a3', 900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
+        }
+
+        .glow-indigo {
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.3);
+        }
+
+        .color-option {
+            transition: all 0.3s ease;
+        }
+
+        .color-option.selected {
+            transform: scale(1.2);
+            box-shadow: 0 0 0 3px white;
+        }
+
+        .wheelchair-preview {
+            transition: all 0.5s ease;
+        }
+
+        .config-item {
+            transition: all 0.3s ease;
+        }
+
+        .config-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .tab-active {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+        }
+    </style>
+</head>
+
+<body class="gradient-bg min-h-screen text-white">
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-card">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+                    <span class="material-icons text-3xl text-indigo-400">accessible</span>
+                    <span class="text-xl font-bold text-indigo-400">智能轮椅</span>
+                </a>
+                <div class="flex items-center space-x-4">
+                    <span class="text-indigo-300 text-sm hidden sm:block">个性化定制</span>
+                    <a href="index.html"
+                        class="glass-card px-4 py-2 rounded-full text-sm hover:bg-white/20 transition-all">
+                        返回首页
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄区域 -->
+    <section class="pt-24 pb-12 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12 animate__animated animate__fadeInUp">
+                <span
+                    class="inline-block px-4 py-2 rounded-full bg-indigo-500/20 text-indigo-300 text-sm font-medium mb-4">
+                    <span class="material-icons text-sm align-middle mr-1">tune</span>
+                    专属定制
+                </span>
+                <h1 class="text-4xl md:text-6xl font-bold mb-4">
+                    <span class="bg-gradient-to-r from-indigo-300 to-violet-300 bg-clip-text text-transparent">
+                        个性化定制
+                    </span>
+                </h1>
+                <p class="text-xl text-gray-400 max-w-2xl mx-auto">
+                    根据您的需求，打造专属于您的智能轮椅
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 定制配置器 -->
+    <section class="py-8 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid lg:grid-cols-2 gap-8">
+                <!-- 左侧：配置选项 -->
+                <div class="space-y-6">
+                    <!-- 外观定制 -->
+                    <div class="glass-card rounded-3xl p-6">
+                        <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                            <span class="material-icons text-indigo-400">palette</span>
+                            外观定制
+                        </h3>
+
+                        <div class="mb-6">
+                            <label class="block text-sm text-gray-400 mb-3">车身颜色</label>
+                            <div class="flex flex-wrap gap-3">
+                                <button onclick="selectColor('silver')"
+                                    class="color-option w-10 h-10 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 selected"
+                                    data-color="silver"></button>
+                                <button onclick="selectColor('black')"
+                                    class="color-option w-10 h-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-900"
+                                    data-color="black"></button>
+                                <button onclick="selectColor('blue')"
+                                    class="color-option w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600"
+                                    data-color="blue"></button>
+                                <button onclick="selectColor('red')"
+                                    class="color-option w-10 h-10 rounded-full bg-gradient-to-br from-red-400 to-red-600"
+                                    data-color="red"></button>
+                                <button onclick="selectColor('green')"
+                                    class="color-option w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600"
+                                    data-color="green"></button>
+                                <button onclick="selectColor('gold')"
+                                    class="color-option w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600"
+                                    data-color="gold"></button>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="block text-sm text-gray-400 mb-3">座椅材质</label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button onclick="selectMaterial('leather')"
+                                    class="config-item p-4 bg-white/5 rounded-xl text-center border-2 border-indigo-500">
+                                    <span class="material-icons text-2xl text-indigo-400 mb-1">event_seat</span>
+                                    <div class="font-medium">真皮座椅</div>
+                                    <div class="text-xs text-gray-400">舒适透气</div>
+                                </button>
+                                <button onclick="selectMaterial('fabric')"
+                                    class="config-item p-4 bg-white/5 rounded-xl text-center border border-white/20">
+                                    <span class="material-icons text-2xl text-gray-400 mb-1">chair</span>
+                                    <div class="font-medium">织物座椅</div>
+                                    <div class="text-xs text-gray-400">柔软耐磨</div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-3">轮毂样式</label>
+                            <div class="grid grid-cols-3 gap-3">
+                                <button onclick="selectWheel('classic')"
+                                    class="config-item p-3 bg-white/5 rounded-xl text-center border-2 border-indigo-500">
+                                    <div class="text-2xl mb-1">⭕</div>
+                                    <div class="text-sm">经典</div>
+                                </button>
+                                <button onclick="selectWheel('sport')"
+                                    class="config-item p-3 bg-white/5 rounded-xl text-center border border-white/20">
+                                    <div class="text-2xl mb-1">🎯</div>
+                                    <div class="text-sm">运动</div>
+                                </button>
+                                <button onclick="selectWheel('luxury')"
+                                    class="config-item p-3 bg-white/5 rounded-xl text-center border border-white/20">
+                                    <div class="text-2xl mb-1">✨</div>
+                                    <div class="text-sm">豪华</div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 座椅调节 -->
+                    <div class="glass-card rounded-3xl p-6">
+                        <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                            <span class="material-icons text-green-400">event_seat</span>
+                            座椅调节
+                        </h3>
+
+                        <div class="space-y-6">
+                            <div>
+                                <div class="flex justify-between mb-2">
+                                    <label class="text-sm text-gray-400">座椅高度</label>
+                                    <span class="text-indigo-400" id="seatHeight">45 cm</span>
+                                </div>
+                                <input type="range" min="40" max="55" value="45"
+                                    class="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer"
+                                    oninput="updateSeatHeight(this.value)">
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between mb-2">
+                                    <label class="text-sm text-gray-400">靠背角度</label>
+                                    <span class="text-indigo-400" id="backAngle">95°</span>
+                                </div>
+                                <input type="range" min="85" max="130" value="95"
+                                    class="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer"
+                                    oninput="updateBackAngle(this.value)">
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between mb-2">
+                                    <label class="text-sm text-gray-400">扶手高度</label>
+                                    <span class="text-indigo-400" id="armrestHeight">25 cm</span>
+                                </div>
+                                <input type="range" min="20" max="35" value="25"
+                                    class="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer"
+                                    oninput="updateArmrestHeight(this.value)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 功能选配 -->
+                    <div class="glass-card rounded-3xl p-6">
+                        <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                            <span class="material-icons text-amber-400">add_circle</span>
+                            功能选配
+                        </h3>
+
+                        <div class="space-y-4">
+                            <label
+                                class="flex items-center justify-between p-4 bg-white/5 rounded-xl cursor-pointer hover:bg-white/10 transition-all">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-icons text-blue-400">wb_sunny</span>
+                                    <div>
+                                        <div class="font-medium">遮阳伞</div>
+                                        <div class="text-xs text-gray-400">户外出行必备</div>
+                                    </div>
+                                </div>
+                                <input type="checkbox" class="w-5 h-5 accent-indigo-500" checked>
+                            </label>
+
+                            <label
+                                class="flex items-center justify-between p-4 bg-white/5 rounded-xl cursor-pointer hover:bg-white/10 transition-all">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-icons text-cyan-400">ac_unit</span>
+                                    <div>
+                                        <div class="font-medium">通风座椅</div>
+                                        <div class="text-xs text-gray-400">夏日清凉舒适</div>
+                                    </div>
+                                </div>
+                                <input type="checkbox" class="w-5 h-5 accent-indigo-500">
+                            </label>
+
+                            <label
+                                class="flex items-center justify-between p-4 bg-white/5 rounded-xl cursor-pointer hover:bg-white/10 transition-all">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-icons text-rose-400">wb_twilight</span>
+                                    <div>
+                                        <div class="font-medium">加热座椅</div>
+                                        <div class="text-xs text-gray-400">冬日温暖呵护</div>
+                                    </div>
+                                </div>
+                                <input type="checkbox" class="w-5 h-5 accent-indigo-500" checked>
+                            </label>
+
+                            <label
+                                class="flex items-center justify-between p-4 bg-white/5 rounded-xl cursor-pointer hover:bg-white/10 transition-all">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-icons text-green-400">shopping_basket</span>
+                                    <div>
+                                        <div class="font-medium">购物篮</div>
+                                        <div class="text-xs text-gray-400">方便携带物品</div>
+                                    </div>
+                                </div>
+                                <input type="checkbox" class="w-5 h-5 accent-indigo-500">
+                            </label>
+
+                            <label
+                                class="flex items-center justify-between p-4 bg-white/5 rounded-xl cursor-pointer hover:bg-white/10 transition-all">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-icons text-amber-400">light_mode</span>
+                                    <div>
+                                        <div class="font-medium">LED灯光套装</div>
+                                        <div class="text-xs text-gray-400">夜间出行安全</div>
+                                    </div>
+                                </div>
+                                <input type="checkbox" class="w-5 h-5 accent-indigo-500" checked>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧：预览和价格 -->
+                <div class="space-y-6">
+                    <!-- 视频预览 -->
+                    <div class="glass-card rounded-3xl p-6 glow-indigo">
+                        <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                            <span class="material-icons text-indigo-400">videocam</span>
+                            效果预览
+                        </h3>
+
+                        <div
+                            class="aspect-square bg-gradient-to-br from-indigo-900/30 to-transparent rounded-2xl flex items-center justify-center relative overflow-hidden">
+                            <!-- 视频播放器 -->
+                            <video controls class="w-full h-full object-cover">
+                                <source src="xiaoguo.mp4" type="video/mp4">
+                                您的浏览器不支持视频标签。
+                            </video>
+                        </div>
+                    </div>
+
+                    <!-- 配置摘要 -->
+                    <div class="glass-card rounded-3xl p-6">
+                        <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                            <span class="material-icons text-green-400">receipt_long</span>
+                            配置摘要
+                        </h3>
+
+                        <div class="space-y-3 mb-6" id="configSummary">
+                            <div class="flex justify-between py-2 border-b border-white/10">
+                                <span class="text-gray-400">基础款</span>
+                                <span>¥28,000</span>
+                            </div>
+                            <div class="flex justify-between py-2 border-b border-white/10">
+                                <span class="text-gray-400">真皮座椅</span>
+                                <span>¥3,500</span>
+                            </div>
+                            <div class="flex justify-between py-2 border-b border-white/10">
+                                <span class="text-gray-400">遮阳伞</span>
+                                <span>¥800</span>
+                            </div>
+                            <div class="flex justify-between py-2 border-b border-white/10">
+                                <span class="text-gray-400">加热座椅</span>
+                                <span>¥1,200</span>
+                            </div>
+                            <div class="flex justify-between py-2 border-b border-white/10">
+                                <span class="text-gray-400">LED灯光套装</span>
+                                <span>¥600</span>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-indigo-500/20 rounded-xl mb-6">
+                            <div class="flex justify-between items-center">
+                                <span class="text-lg">总价</span>
+                                <span class="text-3xl font-bold text-indigo-400">¥34,100</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <button
+                                class="bg-white/10 py-3 rounded-xl font-medium hover:bg-white/20 transition-all flex items-center justify-center gap-2">
+                                <span class="material-icons">share</span>
+                                分享配置
+                            </button>
+                            <button
+                                class="bg-gradient-to-r from-indigo-500 to-indigo-600 py-3 rounded-xl font-medium hover:shadow-lg hover:shadow-indigo-500/50 transition-all flex items-center justify-center gap-2">
+                                <span class="material-icons">shopping_cart</span>
+                                加入购物车
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 推荐配置 -->
+    <section class="py-16 px-6">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-12">
+                <span class="bg-gradient-to-r from-indigo-300 to-violet-300 bg-clip-text text-transparent">
+                    推荐配置方案
+                </span>
+            </h2>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass-card rounded-3xl p-6 card-hover transition-all duration-300">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm">基础版</span>
+                        <span class="text-2xl font-bold text-blue-400">¥28,000</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">日常出行</h3>
+                    <ul class="space-y-2 text-sm text-gray-400 mb-6">
+                        <li class="flex items-center gap-2">
+                            <span class="material-icons text-green-400 text-sm">check</span>
+                            标准座椅
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-icons text-green-400 text-sm">check</span>
+                            基础导航系统
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-icons text-green-400 text-sm">check</span>
+                            80km续航
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-icons text-green-400 text-sm">check</span>
+                            健康监测基础版
+                        </li>
+                    </ul>
+                    <button onclick="applyPreset('basic')"
+                        class="w-full bg-blue-500/20 py-3 rounded-xl font-medium hover:bg-blue-500/30 transition-all">
+                        选择此方案
+                    </button>
+                </div>
+
+                <div
+                    class="glass-card rounded-3xl p-6 border-2 border-indigo-500 relative card-hover transition-all duration-300">
+                    <div
+                        class="absolute -top-3 left-1/2 transform -translate-x-1/2 px-4 py-1 bg-indigo-500 rounded-full text-sm font-medium">
+                        推荐
+                    </div>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-sm">尊享版</span>
+                        <span class="text-2xl font-bold text-indigo-400">¥38,000</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">全能体验</h3>
+                    <ul class="space-y-2 text-sm text-gray-400 mb-6">
+                        <li class="flex items-center gap-2">
+                            <span class="material-icons text-green-400 text-sm">check</span>
+                            真皮座椅 + 加热通风
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-icons text-green-400 text-sm">check</span>
+                            AI智能导航
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-icons text-green-400 text-sm">check</span>
+                            100km续航
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-icons text-green-400 text-sm">check</span>
+                            健康监测专业版
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-icons text-green-400 text-sm">check</span>
+                            遮阳伞 + LED灯光
+                        </li>
+                    </ul>
+                    <button onclick="applyPreset('premium')"
+                        class="w-full bg-gradient-to-r from-indigo-500 to-indigo-600 py-3 rounded-xl font-medium hover:shadow-lg hover:shadow-indigo-500/50 transition-all">
+                        选择此方案
+                    </button>
+                </div>
+
+                <div class="glass-card rounded-3xl p-6 card-hover transition-all duration-300">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 rounded-full text-sm">旗舰版</span>
+                        <span class="text-2xl font-bold text-amber-400">¥58,000</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">极致奢华</h3>
+                    <ul class="space-y-2 text-sm text-gray-400 mb-6">
+                        <li class="flex items-center gap-2">
+                            <span class="material-icons text-green-400 text-sm">check</span>
+                            头层真皮座椅
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-icons text-green-400 text-sm">check</span>
+                            全场景AI导航
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-icons text-green-400 text-sm">check</span>
+                            120km续航
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-icons text-green-400 text-sm">check</span>
+                            健康监测旗舰版
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-icons text-green-400 text-sm">check</span>
+                            全套配件
+                        </li>
+                    </ul>
+                    <button onclick="applyPreset('flagship')"
+                        class="w-full bg-amber-500/20 py-3 rounded-xl font-medium hover:bg-amber-500/30 transition-all">
+                        选择此方案
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- 返回按钮 -->
+    <section class="py-12 px-6">
+        <div class="max-w-7xl mx-auto text-center">
+            <a href="index.html"
+                class="inline-flex items-center gap-2 glass-card px-8 py-4 rounded-full hover:bg-white/20 transition-all">
+                <span class="material-icons">arrow_back</span>
+                返回首页
+            </a>
+        </div>
+    </section>
+
+    <script>
+        // 颜色选择
+        function selectColor(color) {
+            document.querySelectorAll('.color-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+
+            // 更新预览
+            const emoji = document.getElementById('wheelchairEmoji');
+            const colors = {
+                'silver': '♿',
+                'black': '♿',
+                'blue': '♿',
+                'red': '♿',
+                'green': '♿',
+                'gold': '♿'
+            };
+            emoji.style.filter = getFilterByColor(color);
+        }
+
+        function getFilterByColor(color) {
+            const filters = {
+                'silver': 'hue-rotate(0deg) saturate(0%)',
+                'black': 'hue-rotate(0deg) brightness(0.3)',
+                'blue': 'hue-rotate(200deg) saturate(150%)',
+                'red': 'hue-rotate(340deg) saturate(150%)',
+                'green': 'hue-rotate(100deg) saturate(150%)',
+                'gold': 'hue-rotate(30deg) saturate(200%)'
+            };
+            return filters[color] || 'none';
+        }
+
+        // 材质选择
+        function selectMaterial(material) {
+            const buttons = event.target.closest('.grid').querySelectorAll('.config-item');
+            buttons.forEach(btn => {
+                btn.classList.remove('border-indigo-500', 'border-2');
+                btn.classList.add('border-white/20', 'border');
+            });
+            event.target.closest('.config-item').classList.add('border-indigo-500', 'border-2');
+            event.target.closest('.config-item').classList.remove('border-white/20', 'border');
+        }
+
+        // 轮毂选择
+        function selectWheel(wheel) {
+            const buttons = event.target.closest('.grid').querySelectorAll('.config-item');
+            buttons.forEach(btn => {
+                btn.classList.remove('border-indigo-500', 'border-2');
+                btn.classList.add('border-white/20', 'border');
+            });
+            event.target.closest('.config-item').classList.add('border-indigo-500', 'border-2');
+            event.target.closest('.config-item').classList.remove('border-white/20', 'border');
+        }
+
+        // 座椅调节
+        function updateSeatHeight(value) {
+            document.getElementById('seatHeight').textContent = value + ' cm';
+        }
+
+        function updateBackAngle(value) {
+            document.getElementById('backAngle').textContent = value + '°';
+        }
+
+        function updateArmrestHeight(value) {
+            document.getElementById('armrestHeight').textContent = value + ' cm';
+        }
+
+        // 预设方案
+        function applyPreset(preset) {
+            const presets = {
+                'basic': { color: 'silver', price: 28000 },
+                'premium': { color: 'blue', price: 38000 },
+                'flagship': { color: 'gold', price: 58000 }
+            };
+            selectColor(presets[preset].color);
+            alert('已应用' + (preset === 'basic' ? '基础版' : preset === 'premium' ? '尊享版' : '旗舰版') + '配置方案');
+        }
+    </script>
+</body>
+
+</html>

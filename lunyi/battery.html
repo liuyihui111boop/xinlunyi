@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>长续航电池 - 智能轮椅</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        amber: {
+                            50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 300: '#fcd34d',
+                            400: '#fbbf24', 500: '#f59e0b', 600: '#d97706', 700: '#b45309',
+                            800: '#92400e', 900: '#78350f',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(245, 158, 11, 0.3);
+        }
+
+        .battery-fill {
+            animation: batteryFill 3s ease-out forwards;
+        }
+
+        @keyframes batteryFill {
+            from {
+                height: 0%;
+            }
+
+            to {
+                height: var(--fill-level, 85%);
+            }
+        }
+
+        .charging-pulse {
+            animation: charging 1.5s ease-in-out infinite;
+        }
+
+        @keyframes charging {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .energy-flow {
+            background: linear-gradient(90deg, transparent, #fbbf24, transparent);
+            animation: flow 2s linear infinite;
+        }
+
+        @keyframes flow {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(200%);
+            }
+        }
+
+        .glow-amber {
+            box-shadow: 0 0 40px rgba(245, 158, 11, 0.3);
+        }
+    </style>
+</head>
+
+<body class="gradient-bg min-h-screen text-white">
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-card">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+                    <span class="material-icons text-3xl text-amber-400">accessible</span>
+                    <span class="text-xl font-bold text-amber-400">智能轮椅</span>
+                </a>
+                <div class="flex items-center space-x-4">
+                    <span class="text-amber-300 text-sm hidden sm:block">长续航电池系统</span>
+                    <a href="index.html"
+                        class="glass-card px-4 py-2 rounded-full text-sm hover:bg-white/20 transition-all">
+                        返回首页
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄区域 -->
+    <section class="pt-24 pb-12 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12 animate__animated animate__fadeInUp">
+                <span
+                    class="inline-block px-4 py-2 rounded-full bg-amber-500/20 text-amber-300 text-sm font-medium mb-4">
+                    <span class="material-icons text-sm align-middle mr-1">battery_charging_full</span>
+                    超长续航
+                </span>
+                <h1 class="text-4xl md:text-6xl font-bold mb-4">
+                    <span class="bg-gradient-to-r from-amber-300 to-orange-300 bg-clip-text text-transparent">
+                        长续航电池系统
+                    </span>
+                </h1>
+                <p class="text-xl text-gray-400 max-w-2xl mx-auto">
+                    100公里超长续航，快充技术让出行不再受限
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 电池状态展示 -->
+    <section class="py-8 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid lg:grid-cols-2 gap-8">
+                <!-- 电池可视化 -->
+                <div class="glass-card rounded-3xl p-8 glow-amber">
+                    <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                        <span class="material-icons text-amber-400">battery_std</span>
+                        电池状态
+                    </h3>
+
+                    <div class="flex items-center justify-center mb-8">
+                        <div class="relative">
+                            <!-- 电池外框 -->
+                            <div class="w-48 h-72 border-4 border-amber-400 rounded-3xl relative overflow-hidden">
+                                <!-- 电池头部 -->
+                                <div
+                                    class="absolute -top-3 left-1/2 transform -translate-x-1/2 w-16 h-6 bg-amber-400 rounded-t-lg">
+                                </div>
+
+                                <!-- 电量填充 -->
+                                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-amber-500 to-amber-400 battery-fill"
+                                    style="--fill-level: 85%;"></div>
+
+                                <!-- 电量百分比 -->
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div class="text-center z-10">
+                                        <div class="text-5xl font-bold text-white drop-shadow-lg">85%</div>
+                                        <div class="text-amber-100">电量充足</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div class="p-3 bg-white/5 rounded-xl">
+                            <div class="text-2xl font-bold text-amber-400">100km</div>
+                            <div class="text-xs text-gray-400">预计续航</div>
+                        </div>
+                        <div class="p-3 bg-white/5 rounded-xl">
+                            <div class="text-2xl font-bold text-green-400">良好</div>
+                            <div class="text-xs text-gray-400">电池健康</div>
+                        </div>
+                        <div class="p-3 bg-white/5 rounded-xl">
+                            <div class="text-2xl font-bold text-blue-400">28°C</div>
+                            <div class="text-xs text-gray-400">电池温度</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 充电状态 -->
+                <div class="glass-card rounded-3xl p-8">
+                    <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                        <span class="material-icons text-green-400" id="chargingIcon">bolt</span>
+                        充电模式
+                    </h3>
+
+                    <div class="space-y-6">
+                        <!-- 充电进度 -->
+                        <div class="p-4 bg-white/5 rounded-xl">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm text-gray-400">充电进度</span>
+                                <span class="text-amber-400 font-medium" id="chargePercent">85%</span>
+                            </div>
+                            <div class="h-3 bg-white/10 rounded-full overflow-hidden">
+                                <div id="chargeProgress"
+                                    class="h-full bg-gradient-to-r from-amber-500 to-amber-400 rounded-full relative transition-all duration-1000"
+                                    style="width: 85%;">
+                                    <div class="absolute inset-0 energy-flow"></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between mt-2 text-sm text-gray-400">
+                                <span>预计充满时间: <span id="etaTime">45</span>分钟</span>
+                                <span>充电功率: <span id="power">120</span>W</span>
+                            </div>
+                        </div>
+
+                        <!-- 充电状态指示 -->
+                        <div class="flex items-center justify-center gap-4">
+                            <div id="statusDot" class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                            <span id="statusText" class="text-green-400 font-medium">充电中</span>
+                        </div>
+
+                        <!-- 充电控制按钮 -->
+                        <button onclick="toggleCharging()" id="chargeBtn"
+                            class="w-full bg-gradient-to-r from-green-500 to-green-600 py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-green-500/50 transition-all flex items-center justify-center gap-2">
+                            <span class="material-icons" id="chargeIcon2">pause</span>
+                            <span id="chargeBtnText">停止充电</span>
+                        </button>
+
+                        <!-- 充电模式选择 -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <button onclick="selectMode('fast')" id="modeFast"
+                                class="p-4 bg-amber-500/20 border-2 border-amber-500 rounded-xl text-center transition-all">
+                                <span class="material-icons text-2xl text-amber-400 mb-1">flash_on</span>
+                                <div class="font-medium">快充模式</div>
+                                <div class="text-xs text-gray-400">2小时充满</div>
+                                <div class="text-xs text-amber-400 mt-1">120W</div>
+                            </button>
+                            <button onclick="selectMode('normal')" id="modeNormal"
+                                class="p-4 bg-white/5 border border-white/20 rounded-xl text-center hover:bg-white/10 transition-all">
+                                <span class="material-icons text-2xl text-green-400 mb-1">eco</span>
+                                <div class="font-medium">普通模式</div>
+                                <div class="text-xs text-gray-400">4小时充满</div>
+                                <div class="text-xs text-green-400 mt-1">60W</div>
+                            </button>
+                        </div>
+
+                        <!-- 充电统计 -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="p-4 bg-white/5 rounded-xl">
+                                <div class="text-sm text-gray-400 mb-1">今日充电</div>
+                                <div class="text-xl font-bold text-amber-400" id="todayCharge">2 次</div>
+                            </div>
+                            <div class="p-4 bg-white/5 rounded-xl">
+                                <div class="text-sm text-gray-400 mb-1">累计续航</div>
+                                <div class="text-xl font-bold text-green-400">2,450 km</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 续航能力展示 -->
+    <section class="py-8 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="glass-card rounded-3xl p-8">
+                <h3 class="text-2xl font-bold mb-8 text-center">
+                    <span class="bg-gradient-to-r from-amber-300 to-orange-300 bg-clip-text text-transparent">
+                        不同场景下的续航表现
+                    </span>
+                </h3>
+
+                <div class="grid md:grid-cols-4 gap-6">
+                    <div class="text-center p-6 bg-white/5 rounded-2xl">
+                        <div
+                            class="w-16 h-16 mx-auto rounded-full bg-green-500/20 flex items-center justify-center mb-4">
+                            <span class="material-icons text-3xl text-green-400">park</span>
+                        </div>
+                        <div class="text-3xl font-bold text-green-400 mb-1">120km</div>
+                        <div class="text-sm text-gray-400">平坦路面</div>
+                        <div class="text-xs text-green-400 mt-2">节能模式</div>
+                    </div>
+
+                    <div class="text-center p-6 bg-white/5 rounded-2xl">
+                        <div
+                            class="w-16 h-16 mx-auto rounded-full bg-blue-500/20 flex items-center justify-center mb-4">
+                            <span class="material-icons text-3xl text-blue-400">location_city</span>
+                        </div>
+                        <div class="text-3xl font-bold text-blue-400 mb-1">100km</div>
+                        <div class="text-sm text-gray-400">城市道路</div>
+                        <div class="text-xs text-blue-400 mt-2">标准模式</div>
+                    </div>
+
+                    <div class="text-center p-6 bg-white/5 rounded-2xl">
+                        <div
+                            class="w-16 h-16 mx-auto rounded-full bg-amber-500/20 flex items-center justify-center mb-4">
+                            <span class="material-icons text-3xl text-amber-400">terrain</span>
+                        </div>
+                        <div class="text-3xl font-bold text-amber-400 mb-1">75km</div>
+                        <div class="text-sm text-gray-400">坡道路面</div>
+                        <div class="text-xs text-amber-400 mt-2">爬坡模式</div>
+                    </div>
+
+                    <div class="text-center p-6 bg-white/5 rounded-2xl">
+                        <div
+                            class="w-16 h-16 mx-auto rounded-full bg-rose-500/20 flex items-center justify-center mb-4">
+                            <span class="material-icons text-3xl text-rose-400">sports_score</span>
+                        </div>
+                        <div class="text-3xl font-bold text-rose-400 mb-1">60km</div>
+                        <div class="text-sm text-gray-400">高速模式</div>
+                        <div class="text-xs text-rose-400 mt-2">运动模式</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 电池技术 -->
+    <section class="py-16 px-6">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-12">
+                <span class="bg-gradient-to-r from-amber-300 to-orange-300 bg-clip-text text-transparent">
+                    核心电池技术
+                </span>
+            </h2>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="glass-card rounded-2xl p-6 card-hover transition-all duration-300">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center mb-4">
+                        <span class="material-icons">battery_charging_full</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">锂电池组</h3>
+                    <p class="text-gray-400 text-sm">
+                        48V 30Ah 高性能锂电池，能量密度高达 200Wh/kg，循环寿命超过1000次
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 card-hover transition-all duration-300">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center mb-4">
+                        <span class="material-icons">flash_on</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">快充技术</h3>
+                    <p class="text-gray-400 text-sm">
+                        支持120W快充，2小时充满，30分钟可恢复50%电量
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 card-hover transition-all duration-300">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-4">
+                        <span class="material-icons">security</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">BMS管理系统</h3>
+                    <p class="text-gray-400 text-sm">
+                        智能电池管理系统，实时监控电芯状态，过充过放保护
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 card-hover transition-all duration-300">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center mb-4">
+                        <span class="material-icons">device_thermostat</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">温控系统</h3>
+                    <p class="text-gray-400 text-sm">
+                        智能温控技术，-20°C至50°C环境稳定工作，确保电池安全
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 card-hover transition-all duration-300">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center mb-4">
+                        <span class="material-icons">autorenew</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">能量回收</h3>
+                    <p class="text-gray-400 text-sm">
+                        下坡制动能量回收系统，可延长15%续航里程
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 card-hover transition-all duration-300">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center mb-4">
+                        <span class="material-icons">swap_horiz</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">可拆卸设计</h3>
+                    <p class="text-gray-400 text-sm">
+                        电池模块可拆卸，支持室内充电，方便携带
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 技术参数 -->
+    <section class="py-16 px-6">
+        <div class="max-w-5xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-12">电池技术参数</h2>
+
+            <div class="glass-card rounded-3xl overflow-hidden">
+                <table class="w-full">
+                    <thead class="bg-amber-900/50">
+                        <tr>
+                            <th class="px-6 py-4 text-left">参数项</th>
+                            <th class="px-6 py-4 text-left">规格</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/10">
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="px-6 py-4">电池类型</td>
+                            <td class="px-6 py-4 text-amber-400">三元锂电池</td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="px-6 py-4">额定电压</td>
+                            <td class="px-6 py-4 text-amber-400">48V</td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="px-6 py-4">电池容量</td>
+                            <td class="px-6 py-4 text-amber-400">30Ah (1440Wh)</td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="px-6 py-4">最大续航</td>
+                            <td class="px-6 py-4 text-amber-400">120km (平坦路面)</td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="px-6 py-4">充电时间</td>
+                            <td class="px-6 py-4 text-amber-400">快充2小时 / 普通充电4小时</td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="px-6 py-4">循环寿命</td>
+                            <td class="px-6 py-4 text-amber-400">&gt;1000次 (容量保持率≥80%)</td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="px-6 py-4">工作温度</td>
+                            <td class="px-6 py-4 text-amber-400">-20°C ~ 50°C</td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="px-6 py-4">电池重量</td>
+                            <td class="px-6 py-4 text-amber-400">8.5kg</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- 充电设施 -->
+    <section class="py-16 px-6">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-12">充电配套设施</h2>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass-card rounded-2xl p-6 text-center">
+                    <div class="w-20 h-20 mx-auto rounded-full bg-amber-500/20 flex items-center justify-center mb-4">
+                        <span class="material-icons text-4xl text-amber-400">home</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">家用充电</h3>
+                    <p class="text-gray-400 text-sm">
+                        标配家用充电器，220V普通插座即可充电，方便快捷
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 text-center">
+                    <div class="w-20 h-20 mx-auto rounded-full bg-green-500/20 flex items-center justify-center mb-4">
+                        <span class="material-icons text-4xl text-green-400">ev_station</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">公共充电站</h3>
+                    <p class="text-gray-400 text-sm">
+                        全市500+充电站点，APP一键导航，扫码即充
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 text-center">
+                    <div class="w-20 h-20 mx-auto rounded-full bg-blue-500/20 flex items-center justify-center mb-4">
+                        <span class="material-icons text-4xl text-blue-400">power</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">移动电源</h3>
+                    <p class="text-gray-400 text-sm">
+                        可选配便携式移动电源，户外出行无忧
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 返回按钮 -->
+    <section class="py-12 px-6">
+        <div class="max-w-7xl mx-auto text-center">
+            <a href="index.html"
+                class="inline-flex items-center gap-2 glass-card px-8 py-4 rounded-full hover:bg-white/20 transition-all">
+                <span class="material-icons">arrow_back</span>
+                返回首页
+            </a>
+        </div>
+    </section>
+
+
+    <script>
+        // 充电状态
+        let isCharging = true;
+        let chargePercent = 85;
+        let currentMode = 'fast';
+        let chargeTimer = null;
+
+        // 模式配置
+        const modes = {
+            fast: {
+                power: 120,
+                timePerPercent: 0.8, // 每1%需要0.8分钟
+                color: 'from-amber-500 to-amber-400',
+                icon: 'flash_on',
+                text: '快充模式'
+            },
+            normal: {
+                power: 60,
+                timePerPercent: 1.6, // 每1%需要1.6分钟
+                color: 'from-green-500 to-green-600',
+                icon: 'eco',
+                text: '普通模式'
+            }
+        };
+
+        // 更新充电显示
+        function updateChargeDisplay() {
+            const mode = modes[currentMode];
+
+            // 更新进度条
+            document.getElementById('chargeProgress').style.width = chargePercent + '%';
+            document.getElementById('chargePercent').textContent = chargePercent + '%';
+
+            // 更新预计时间
+            const remainingPercent = 100 - chargePercent;
+            const etaMinutes = Math.ceil(remainingPercent * mode.timePerPercent);
+            document.getElementById('etaTime').textContent = etaMinutes;
+
+            // 更新功率
+            document.getElementById('power').textContent = mode.power;
+        }
+
+        // 切换充电状态
+        function toggleCharging() {
+            const btn = document.getElementById('chargeBtn');
+            const icon = document.getElementById('chargeIcon');
+            const icon2 = document.getElementById('chargeIcon2');
+            const btnText = document.getElementById('chargeBtnText');
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            const progressBar = document.getElementById('chargeProgress');
+
+            if (isCharging) {
+                // 停止充电
+                isCharging = false;
+                clearInterval(chargeTimer);
+
+                btn.classList.remove('from-green-500', 'to-green-600');
+                btn.classList.add('from-amber-500', 'to-amber-600');
+                icon.textContent = 'power_off';
+                icon2.textContent = 'play_arrow';
+                btnText.textContent = '开始充电';
+
+                statusDot.classList.remove('bg-green-400', 'animate-pulse');
+                statusDot.classList.add('bg-gray-400');
+                statusText.textContent = '已停止';
+                statusText.classList.remove('text-green-400');
+                statusText.classList.add('text-gray-400');
+
+                progressBar.style.animationPlayState = 'paused';
+            } else {
+                // 开始充电
+                isCharging = true;
+
+                btn.classList.remove('from-amber-500', 'to-amber-600');
+                btn.classList.add('from-green-500', 'to-green-600');
+                icon.textContent = 'bolt';
+                icon2.textContent = 'pause';
+                btnText.textContent = '停止充电';
+
+                statusDot.classList.remove('bg-gray-400');
+                statusDot.classList.add('bg-green-400', 'animate-pulse');
+                statusText.textContent = '充电中';
+                statusText.classList.remove('text-gray-400');
+                statusText.classList.add('text-green-400');
+
+                progressBar.style.animationPlayState = 'running';
+
+                // 开始充电计时
+                startCharging();
+            }
+        }
+
+        // 开始充电
+        function startCharging() {
+            const mode = modes[currentMode];
+            const intervalTime = mode.timePerPercent * 60 * 1000 / 100; // 转换为毫秒
+
+            chargeTimer = setInterval(() => {
+                if (chargePercent >= 100) {
+                    chargePercent = 100;
+                    clearInterval(chargeTimer);
+                    isCharging = false;
+
+                    // 充满提示
+                    const btn = document.getElementById('chargeBtn');
+                    const icon = document.getElementById('chargeIcon');
+                    const icon2 = document.getElementById('chargeIcon2');
+                    const btnText = document.getElementById('chargeBtnText');
+                    const statusDot = document.getElementById('statusDot');
+                    const statusText = document.getElementById('statusText');
+
+                    btn.classList.remove('from-green-500', 'to-green-600');
+                    btn.classList.add('from-green-400', 'to-green-500');
+                    icon.textContent = 'check_circle';
+                    icon2.textContent = 'refresh';
+                    btnText.textContent = '已充满';
+
+                    statusDot.classList.remove('animate-pulse');
+                    statusText.textContent = '已充满';
+                    statusText.classList.add('text-amber-400');
+
+                    // 更新今日充电次数
+                    const todayCharge = document.getElementById('todayCharge');
+                    const chargeCount = parseInt(todayCharge.textContent) + 1;
+                    todayCharge.textContent = chargeCount + ' 次';
+
+                    return;
+                }
+
+                chargePercent++;
+                updateChargeDisplay();
+            }, intervalTime);
+        }
+
+        // 选择充电模式
+        function selectMode(mode) {
+            currentMode = mode;
+            const modeConfig = modes[mode];
+
+            // 更新按钮样式
+            const fastBtn = document.getElementById('modeFast');
+            const normalBtn = document.getElementById('modeNormal');
+
+            if (mode === 'fast') {
+                fastBtn.classList.add('bg-amber-500/20', 'border-2', 'border-amber-500');
+                fastBtn.classList.remove('bg-white/5', 'border-white/20');
+
+                normalBtn.classList.remove('bg-green-500/20', 'border-2', 'border-green-500');
+                normalBtn.classList.add('bg-white/5', 'border-white/20');
+            } else {
+                normalBtn.classList.add('bg-green-500/20', 'border-2', 'border-green-500');
+                normalBtn.classList.remove('bg-white/5', 'border-white/20');
+
+                fastBtn.classList.remove('bg-amber-500/20', 'border-2', 'border-amber-500');
+                fastBtn.classList.add('bg-white/5', 'border-white/20');
+            }
+
+            // 如果正在充电，重新开始
+            if (isCharging) {
+                clearInterval(chargeTimer);
+                startCharging();
+            }
+
+            updateChargeDisplay();
+        }
+
+        // 初始化
+        updateChargeDisplay();
+        startCharging();
+    </script>
+</body>
+
+</html>
